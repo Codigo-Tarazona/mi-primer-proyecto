@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="p-5 mb-4 rounded-3 text-white shadow-lg" style="background: linear-gradient(135deg, #003366 0%, #00aaff 100%);">
+    <div class="container-fluid py-5 text-center">
+        <h1 class="display-5 fw-bold">WOLF TEAM VOLLEYBALL CLUB</h1>
+        <p class="fs-4 italic">"Más que un equipo, una familia formadora de talentos."</p>
+        <hr class="my-4 border-white">
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="/registro" class="btn btn-light btn-lg px-4 gap-3 fw-bold" style="color: #003366;">¡Inscríbete Ahora!</a>
+            {% if not current_user.is_authenticated %}
+                <a href="/login" class="btn btn-outline-light btn-lg px-4">Acceso Entrenador</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row align-items-md-stretch mb-5">
+    <div class="col-md-7">
+        <div class="h-100 p-5 bg-white border rounded-3 shadow-sm">
+            <h2 style="color: #003366; border-bottom: 3px solid #00aaff; display: inline-block;">Nuestra Trayectoria</h2>
+            <p class="mt-4 lead text-muted">
+                {% if info %}
+                    {{ info.descripcion }}
+                {% else %}
+                    Wolf Team nació con el objetivo de brindar un espacio deportivo integral. Nos especializamos en la enseñanza del voleibol bajo una metodología basada en el respeto, la disciplina y la integración social.
+                {% endif %}
+            </p>
+            <p>Contamos con categorías que van desde la iniciación hasta el nivel avanzado, asegurando que cada atleta encuentre su lugar en la manada.</p>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="h-100 p-5 text-white rounded-3 shadow-sm" style="background-color: #4a4e57;">
+            <h2 class="mb-4">Hitos y Logros</h2>
+            <ul class="list-unstyled">
+                <li class="mb-3">🏐 <strong>Formación Integral:</strong> Más de 100 atletas formados con valores sociales.</li>
+                <li class="mb-3">🏆 <strong>Competencia:</strong> Participación destacada en torneos regionales.</li>
+                <li class="mb-3">🌟 <strong>Metodología:</strong> Enseñanza personalizada según intensidad (Recreativo/Competitivo).</li>
+            </ul>
+            <div class="mt-4 p-3 rounded" style="background-color: rgba(255,255,255,0.1);">
+                <small><em>"Enseñar antes que criticar, integrar antes que excluir."</em></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mb-5">
+    <h3 style="color: #003366;">Nuestros Horarios de Entrenamiento</h3>
+    <p class="text-muted">Lunes, Miércoles y Viernes</p>
+    <div class="d-flex justify-content-center gap-3">
+        <span class="badge p-3 fs-6" style="background-color: #003366;">4:20 PM - 6:00 PM</span>
+        <span class="badge p-3 fs-6" style="background-color: #00aaff;">6:00 PM - 7:30 PM</span>
+        <span class="badge p-3 fs-6" style="background-color: #003366;">7:30 PM - 9:00 PM</span>
+    </div>
+</div>
+
+{% endblock %}

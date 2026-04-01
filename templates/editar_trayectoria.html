@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 shadow p-4 bg-white rounded">
+        <h3 style="color: #003366;">Editar Trayectoria del Club</h3>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Descripción General</label>
+                <textarea name="descripcion" class="form-control" rows="8" required>{{ info.descripcion if info else '' }}</textarea>
+                <div class="form-text">Cuenta la historia, misión y visión del Wolf Team.</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Logros Principales</label>
+                <textarea name="logros" class="form-control" rows="4">{{ info.logros if info else '' }}</textarea>
+                <div class="form-text">Menciona torneos, medallas o hitos importantes.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

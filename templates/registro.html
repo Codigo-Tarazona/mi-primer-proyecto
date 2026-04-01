@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 shadow-lg p-4 bg-white rounded-4 border-top border-primary border-5">
+        <h2 class="text-center mb-4" style="color: #003366;">Inscripción "Wolf Team"</h2>
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label">Nombre Completo</label>
+                    <input type="text" name="nombre" class="form-control" required placeholder="Ej: David Tarazona">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Edad</label>
+                    <input type="number" name="edad" class="form-control" required>
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label">Categoría</label>
+                    <select name="categoria" class="form-select" required>
+                        <option value="Iniciación">Iniciación</option>
+                        <option value="Básica">Básica</option>
+                        <option value="Intermedia">Intermedia</option>
+                        <option value="Avanzada">Avanzada</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Intensidad</label>
+                    <select name="intensidad" class="form-select" required>
+                        <option value="Recreativo">Recreativo</option>
+                        <option value="Competitivo">Competitivo</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Horario</label>
+                    <select name="horario" class="form-select" required>
+                        <option value="L-M-V 4:20PM a 6:00PM">4:20PM a 6:00PM</option>
+                        <option value="L-M-V 6:00PM a 7:30PM">6:00PM a 7:30PM</option>
+                        <option value="L-M-V 7:30PM a 9:00PM">7:30PM a 9:00PM</option>
+                    </select>
+                </div>
+
+                <hr class="my-4">
+                <h5 style="color: #00aaff;">Información de Contacto</h5>
+                
+                <div class="col-md-6">
+                    <label class="form-label">Teléfono Usuario</label>
+                    <input type="text" name="telefono" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Contacto Emergencia (Nombre)</label>
+                    <input type="text" name="emergencia_nombre" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Teléfono Emergencia</label>
+                    <input type="text" name="emergencia_tel" class="form-control" required>
+                </div>
+
+                <div class="col-12 text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg w-100" style="background-color: #003366;">Registrar Integrante</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow border-primary mb-4">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0"><i class="fas fa-id-card me-2"></i>Ficha del Lobo</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-6x text-secondary"></i>
+                    </div>
+                    <h3 class="text-uppercase fw-bold">{{ usuario.nombre_completo }}</h3>
+                    <span class="badge bg-info text-dark mb-3">{{ usuario.posicion }}</span>
+                    <hr>
+                    <ul class="list-group list-group-flush text-start">
+                        <li class="list-group-item"><strong>Documento:</strong> {{ usuario.documento }}</li>
+                        <li class="list-group-item"><strong>Edad:</strong> {{ usuario.edad }} años</li>
+                        <li class="list-group-item"><strong>Horario:</strong> {{ usuario.horario }}</li>
+                        <li class="list-group-item"><strong>Acudiente:</strong> {{ usuario.telefono_acudiente }}</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-light">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-history me-2"></i>Historial de Mensualidades</h4>
+                    <a href="{{ url_for('registrar_pago', usuario_id=usuario.id) }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus"></i> Nuevo Pago
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if pagos %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Mes Pagado</th>
+                                    <th>Monto</th>
+                                    <th>Método</th>
+                                    <th class="text-end">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in pagos %}
+                                <tr>
+                                    <td>{{ p.fecha_pago.strftime('%d/%m/%Y') }}</td>
+                                    <td><span class="badge bg-success-subtle text-success border border-success">{{ p.mes_correspondiente }}</span></td>
+                                    <td class="fw-bold">${{ p.monto }}</td>
+                                    <td><small class="text-muted">{{ p.metodo }}</small></td>
+                                    <td class="text-end">
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('editar_pago', pago_id=p.id) }}" class="btn btn-sm btn-outline-warning" title="Editar este pago">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{{ url_for('eliminar_pago', pago_id=p.id) }}" 
+                                               class="btn btn-sm btn-outline-danger" 
+                                               title="Eliminar este pago"
+                                               onclick="return confirm('¿Estás seguro de eliminar este registro de pago? Esto podría cambiar el estatus a Mora.')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No se han registrado pagos para este integrante.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card { border-radius: 12px; overflow: hidden; }
+    .table thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+    .list-group-item { border: none; padding: 10px 0; }
+    .badge { padding: 0.5em 0.8em; }
+</style>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4" style="color: #003366;">Reportes de Gestión</h2>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white shadow">
+            <div class="card-body">
+                <h6>Ingresos Semanales</h6>
+                <h2>${{ total_semanal }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-danger text-white shadow">
+            <div class="card-body">
+                <h6>Usuarios en Mora</h6>
+                <h2>{{ retrasados|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white p-4 rounded shadow-sm">
+    <h4>Usuarios con Pagos Pendientes</h4>
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in retrasados %}
+            <tr>
+                <td>{{ r.nombre_completo }}</td>
+                <td>{{ r.telefono }}</td>
+                <td><span class="badge bg-danger">Mora</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
