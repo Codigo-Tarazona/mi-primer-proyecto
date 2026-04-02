@@ -7,8 +7,6 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///wolfteam.db'
 app.config['SECRET_KEY'] = 'wolf_secret_2026'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Recomendado para evitar warnings
-
 db.init_app(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -26,18 +24,14 @@ def trayectoria():
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
-        # Validar que los nombres coincidan con models.py (posicion vs categoria)
         nuevo = Usuario(
-            nombre_completo=request.form['nombre'], 
-            edad=request.form['edad'],
-            posicion=request.form['categoria'], # Ajustado a lo que vimos en el Dashboard
-            horario=request.form['horario'], 
-            telefono_acudiente=request.form['telefono'], # Ajustado para que se vea en la Ficha
-            documento=request.form.get('documento', '') # Agregado si lo pides en el form
+            nombre_completo=request.form['nombre'], edad=request.form['edad'],
+            categoria=request.form['categoria'], intensidad=request.form['intensidad'],
+            horario=request.form['horario'], telefono=request.form['telefono'],
+            contacto_emergencia=request.form['emergencia_nombre'], tel_emergencia=request.form['emergencia_tel']
         )
         db.session.add(nuevo)
         db.session.commit()
-        flash("¡Registro exitoso!", "success")
         return redirect(url_for('trayectoria'))
     return render_template('registro.html')
 
@@ -46,34 +40,92 @@ def login():
     if request.method == 'POST':
         user = request.form.get('usuario')
         pw = request.form.get('password')
+        print(f"DEBUG: Intentando entrar con usuario: {user}") # Esto saldrá en tu terminal
+
         admin = Admin.query.filter_by(usuario=user).first()
 
-        if admin and admin.check_password(pw):
-            login_user(admin)
-            return redirect(url_for('dashboard'))
+        if admin:
+            print("DEBUG: Usuario encontrado en BD")
+            if admin.check_password(pw):
+                print("DEBUG: Contraseña CORRECTA")
+                login_user(admin)
+                return redirect(url_for('dashboard'))
+            else:
+                print("DEBUG: Contraseña INCORRECTA")
+        else:
+            print("DEBUG: Usuario NO encontrado")
             
         flash("Credenciales inválidas", "danger")
     return render_template('login.html')
 
 # --- RUTAS PRIVADAS ---
+from datetime import datetime
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
     usuarios = Usuario.query.all()
     estados = {}
+    
+    # Obtenemos el mes actual en español para comparar
     meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
              "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
     mes_actual = meses[datetime.now().month - 1]
 
     for u in usuarios:
+        # Buscamos si el usuario tiene AL MENOS un pago registrado para el mes actual
         pago_existente = Pago.query.filter_by(
             usuario_id=u.id, 
             mes_correspondiente=mes_actual
         ).first()
-        estados[u.id] = 'Al Día' if pago_existente else 'Mora'
+        
+        if pago_existente:
+            estados[u.id] = 'Al Día'
+        else:
+            estados[u.id] = 'Mora'
             
     return render_template('dashboard.html', usuarios=usuarios, estados=estados)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+@app.route('/eliminar_usuario/<int:usuario_id>')
+@login_required
+def eliminar_usuario(usuario_id):
+    usuario = Usuario.query.get(usuario_id)
+    if usuario:
+        db.session.delete(usuario)
+        db.session.commit()
+        flash('Usuario eliminado', 'success')
+    return redirect(url_for('dashboard'))
+
+@app.route('/registrar_pago/<int:usuario_id>', methods=['GET', 'POST'])
+@login_required
+def registrar_pago(usuario_id):
+    usuario = db.session.get(Usuario, usuario_id)
+    
+    if request.method == 'POST':
+        # Capturamos los datos del formulario
+        monto_f = request.form.get('monto')
+        mes_f = request.form.get('mes')
+        metodo_f = request.form.get('metodo')
+
+        # Creamos el pago con los datos capturados
+        pago = Pago(
+            monto=monto_f,
+            mes_correspondiente=mes_f,
+            metodo=metodo_f,
+            usuario_id=usuario.id,
+            fecha_pago=datetime.now()
+        )
+        
+        db.session.add(pago)
+        db.session.commit()
+        return redirect(url_for('dashboard'))
+
+    return render_template('pagos.html', usuario=usuario)
 
 @app.route('/ver_usuario/<int:usuario_id>')
 @login_required
@@ -83,37 +135,37 @@ def ver_usuario(usuario_id):
         flash("Usuario no encontrado", "danger")
         return redirect(url_for('dashboard'))
     pagos = Pago.query.filter_by(usuario_id=usuario.id).order_by(Pago.fecha_pago.desc()).all()
+    
     return render_template('perfil_usuario.html', usuario=usuario, pagos=pagos)
 
-@app.route('/registrar_pago/<int:usuario_id>', methods=['GET', 'POST'])
+@app.route('/editar_pago/<int:pago_id>', methods=['GET', 'POST'])
 @login_required
-def registrar_pago(usuario_id):
-    usuario = db.session.get(Usuario, usuario_id)
-    if request.method == 'POST':
-        pago = Pago(
-            monto=request.form.get('monto'),
-            mes_correspondiente=request.form.get('mes'),
-            metodo=request.form.get('metodo'),
-            usuario_id=usuario.id,
-            fecha_pago=datetime.now()
-        )
-        db.session.add(pago)
-        db.session.commit()
-        flash("Pago registrado correctamente", "success")
-        return redirect(url_for('ver_usuario', usuario_id=usuario.id))
-    return render_template('pagos.html', usuario=usuario)
-
-# Ruta para comprobantes PDF (si la usas)
-@app.route('/descargar_comprobante/<int:pago_id>')
-@login_required
-def descargar_comprobante(pago_id):
+def editar_pago(pago_id):
     pago = db.session.get(Pago, pago_id)
-    pdf_path = generar_pdf_comprobante(pago)
-    return send_file(pdf_path, as_attachment=True)
+    if not pago:
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        pago.monto = request.form.get('monto')
+        pago.mes_correspondiente = request.form.get('mes')
+        pago.metodo = request.form.get('metodo')
+        db.session.commit()
+        return redirect(url_for('ver_usuario', usuario_id=pago.usuario_id))
+    
+    # ASEGÚRATE DE QUE ESTO COINCIDA CON EL NOMBRE DEL ARCHIVO:
+    return render_template('editar_pago.html', pago=pago)
 
-# ... (Tus rutas de editar y eliminar pago están correctas)
+@app.route('/eliminar_pago/<int:pago_id>')
+@login_required
+def eliminar_pago(pago_id):
+    pago = db.session.get(Pago, pago_id)
+    if pago:
+        usuario_id = pago.usuario_id
+        db.session.delete(pago)
+        db.session.commit()
+        flash("Pago eliminado. El estado del usuario se ha actualizado.", "info")
+        return redirect(url_for('ver_usuario', usuario_id=usuario_id))
+    return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all() # Esto asegura que las tablas se creen en Render
-    app.run(debug=True) # Activa debug para ver errores en desarrollo
+    app.run()

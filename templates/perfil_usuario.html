@@ -16,14 +16,11 @@
                     <span class="badge bg-info text-dark mb-3">{{ usuario.posicion }}</span>
                     <hr>
                     <ul class="list-group list-group-flush text-start">
-    <li class="list-group-item"><strong>Documento:</strong> {{ usuario.documento }}</li>
-    
-    <li class="list-group-item"><strong>Edad:</strong> {{ usuario.edad }} años</li>
-    
-    <li class="list-group-item"><strong>Horario:</strong> {{ usuario.horario }}</li>
-    
-    <li class="list-group-item"><strong>Acudiente:</strong> {{ usuario.telefono_acudiente }}</li>
-</ul>
+                        <li class="list-group-item"><strong>Documento:</strong> {{ usuario.documento }}</li>
+                        <li class="list-group-item"><strong>Edad:</strong> {{ usuario.edad }} años</li>
+                        <li class="list-group-item"><strong>Horario:</strong> {{ usuario.horario }}</li>
+                        <li class="list-group-item"><strong>Acudiente:</strong> {{ usuario.telefono_acudiente }}</li>
+                    </ul>
                 </div>
                 <div class="card-footer bg-light">
                     <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary w-100">
